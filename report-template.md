@@ -455,11 +455,32 @@ User clicks [action]
 ## Priority Actions
 
 > Ordered by impact on implementation readiness. Do these before asking an AI agent to implement.
+> For backend/full-stack RFCs, every action touching API or data must state the missing contract fields explicitly (not "add more detail").
 
 1. **`<section or decision #>`** — `<what to add/change and why it unblocks agentic execution>`
 2. **`<section or decision #>`** — `<what to add/change>`
 3. **`<section or decision #>`** — `<what to add/change>`
 4. **`<section or decision #>`** — `<what to add/change>`
+
+---
+
+## Backend Contract Addendum *(backend/full-stack only, if applicable)*
+
+> Include this section whenever the RFC introduces or changes backend endpoints and/or database structures.
+
+### Endpoint Contract Details
+
+| Endpoint | Method/Path | AuthZ | Request Contract | Response Contract | Error Contract | Idempotency/Versioning | Status |
+|---|---|---|---|---|---|---|---|
+| `<name>` | `<POST /v1/...>` | `<scope/role + ownership rule>` | `<fields, types, required, validation>` | `<fields, types, nullable, examples>` | `<code + status + trigger>` | `<idempotency key + API version rule>` | `Complete / Missing [fields]` |
+
+### Database Changes Details
+
+| Change | Table/Entity | DDL / Shape Diff | Data Migration Plan | Rollback Plan | Compatibility Window | Status |
+|---|---|---|---|---|---|---|
+| `<new table / alter column / new index>` | `<table>` | `<types, nullability, constraints, indexes>` | `<backfill steps + rate + duration>` | `<revert mechanism + impact on new writes>` | `<old/new schema support period>` | `Complete / Missing [details]` |
+
+`<If backend is in scope but one table is empty, write: "MISSING BACKEND CONTRACT DETAIL — cannot proceed agentically without endpoint contract/database change details.">`
 
 ---
 
@@ -495,8 +516,8 @@ User clicks [action]
 - [ ] Feature flag coordination defined (one flag or two? independent toggle?)
 
 **Backend:**
-- [ ] Schema changes at DDL-level precision (columns, types, constraints, indexes)
-- [ ] API contracts with full request/response schemas, error taxonomy, example payloads
+- [ ] Schema changes, if applicable, at DDL-level precision (columns, types, constraints, indexes)
+- [ ] API contracts, if applicable, with full request/response schemas, error taxonomy, example payloads
 - [ ] Transaction boundaries and idempotency keys defined per write path
 - [ ] Concurrency collision points listed with resolution mechanisms
 - [ ] Security: auth boundaries, input validation, injection surfaces, tenancy isolation

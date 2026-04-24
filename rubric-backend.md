@@ -143,6 +143,7 @@ Low score:
 ### DMS — Data Model & Schema Specificity
 
 **Core question:** Are schema changes defined with DDL-level precision?
+**Applicability:** Required when the RFC adds/changes tables, columns, indexes, constraints, or storage/query patterns.
 
 Look for:
 - Full DDL for every new or altered table: column names, types, nullability, defaults, constraints, foreign keys
@@ -161,11 +162,15 @@ Low score:
 - "Add a new table for orders" without columns, types, constraints, or indexes.
 - Agent must invent the schema.
 
+Review output requirement:
+- If DMS < 7.0, list exactly which database details are missing in the report (DDL shape, migration/backfill steps, rollback, compatibility window).
+
 ---
 
 ### ACV — API Contract & Versioning
 
 **Core question:** Are API contracts specified at consumer-ready depth?
+**Applicability:** Required when the RFC adds/changes synchronous API endpoints or externally consumed service interfaces.
 
 Look for:
 - Exact method, path, and all status codes per endpoint
@@ -185,6 +190,9 @@ High score:
 Low score:
 - "POST /api/orders" with no schema, status codes, or error handling.
 - Agent must invent the contract.
+
+Review output requirement:
+- If ACV < 7.0, report must enumerate missing endpoint contract fields per endpoint (method/path, auth, request schema, response schema, error taxonomy, idempotency/versioning).
 
 ---
 
