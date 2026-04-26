@@ -59,9 +59,19 @@ If no argument is passed, ask the user to provide the RFC as a file path, URL, o
 - This is a judgment-based review. Do not tick boxes mechanically.
 - Cite specific sections, sentences, or code/schema examples from the RFC. Do not make generic claims.
 - Focus on whether an AI agent or engineer can start implementing without a clarification meeting.
+- Prioritize implementation-contract clarity over infrastructure budgeting detail. Missing pod sizing, CPU/memory sizing, DB load estimates, storage growth projections, Redis memory estimates, or cloud-cost estimates should not block readiness by default unless the RFC is explicitly a capacity/cost planning RFC.
 - If a section is absent, record that absence explicitly. Do not skip silently or assume it exists elsewhere.
 - Use `0.5` score increments for category scores and the overall score.
 - If the RFC is clearly too thin to assess reliably, say so and explain the limiting factors.
+
+## Evidence normalization
+
+Before scoring, normalize the source content:
+
+- Treat sections titled like `Feedback`, `Comments`, `Reviewer Notes`, inline review threads, or conversational Q&A as non-authoritative discussion context.
+- Do not use those sections as primary scoring evidence.
+- Only score a point from those sections if the RFC explicitly promotes it into the authoritative spec body (for example: decision, contract, rollout, or acceptance criteria sections).
+- If the fetched source mixes RFC content and discussion threads, state in the report that discussion sections were excluded from scoring evidence.
 
 ## Non-Negotiable SOP
 
@@ -70,12 +80,13 @@ Four phases. Within each phase, steps can run in parallel.
 ### Phase 1 — Intake (do first, before any scoring)
 
 1. Read the full RFC content.
-2. Identify the RFC type (`frontend`, `backend`, `full-stack`) and sub-type:
+2. Normalize evidence: exclude non-authoritative feedback/comment sections (`Feedback`, `Comments`, `Reviewer Notes`, review threads) unless their content is explicitly promoted into the authoritative RFC spec sections.
+3. Identify the RFC type (`frontend`, `backend`, `full-stack`) and sub-type:
    - Frontend: `new-feature`, `enhancement`, or `performance`
    - Backend: `new-feature`, `enhancement`, or `tech-improvement`
    - Full-stack: identify both frontend and backend sub-types
-3. Read the rubric file(s) for that type and `report-template.md`.
-4. Build an evidence log — note section by section what is present, thin, or absent.
+4. Read the rubric file(s) for that type and `report-template.md`.
+5. Build an evidence log — note section by section what is present, thin, or absent.
 
 ### Phase 2 — Score (can run in parallel across categories)
 
@@ -191,6 +202,6 @@ For each Partial or Dangling decision, include:
 ## Rubric files
 
 - `rubric-frontend.md` — frontend RFC rubric: 11 categories, 17 reviewer skills, skill matrix by sub-type, frontend-specific score caps
-- `rubric-backend.md` — backend RFC rubric: 13 core + 1 conditional categories, 19 reviewer skills, skill matrix by sub-type, backend-specific score caps, data integrity/concurrency/API/compliance deep-dives
-- `rubric-fullstack.md` — full-stack RFC rubric: 19 unified categories with explicit merge rules for shared categories, cross-layer deep-dives (contract verification, rollout compatibility, end-to-end flow), cross-layer score caps
+- `rubric-backend.md` — backend RFC rubric: 12 core + 1 conditional scored categories (+ resource/cost advisory), 19 reviewer skills, skill matrix by sub-type, backend-specific score caps, data integrity/concurrency/API/compliance deep-dives
+- `rubric-fullstack.md` — full-stack RFC rubric: 18 unified scored categories (+ resource/cost advisory) with explicit merge rules for shared categories, cross-layer deep-dives (contract verification, rollout compatibility, end-to-end flow), cross-layer score caps
 - `report-template.md` — unified report template that adapts per RFC type

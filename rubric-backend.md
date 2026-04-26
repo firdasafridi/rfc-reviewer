@@ -55,7 +55,7 @@ These skills are the lenses applied during review. Each produces evidence for sc
 | 15 | Concurrency & scaling | **M** | M | **M** |
 | 16 | Security & authorization | **M** | M | **M** (when security) |
 | 17 | Compliance & data governance | O | O | O |
-| 18 | Resource & cost awareness | M | M | **M** |
+| 18 | Resource & cost awareness | O | O | O |
 | 19 | Performance reasoning | M | M | **M** (when performance) |
 
 **M** = Mandatory for this sub-type
@@ -76,9 +76,9 @@ These skills are the lenses applied during review. Each produces evidence for sc
 
 Across all three backend sub-types, these never drop off:
 
-Systems thinking, trade-off analysis, NFR literacy, failure mode imagination, observability, cost of change, communication, knowing what's missing, data integrity & consistency, resource & cost awareness.
+Systems thinking, trade-off analysis, NFR literacy, failure mode imagination, observability, cost of change, communication, knowing what's missing, data integrity & consistency.
 
-Ten skills. A reviewer who masters only these will catch the majority of serious backend issues.
+Nine skills. A reviewer who masters only these will catch the majority of serious backend issues.
 
 ### Distinct high-risk areas per sub-type
 
@@ -90,7 +90,7 @@ Ten skills. A reviewer who masters only these will catch the majority of serious
 
 ---
 
-## Category Scores (13 core + 1 conditional)
+## Category Scores (12 core + 1 conditional + 1 advisory)
 
 Score each category from `0.0` to `10.0`. Use `0.5` increments only.
 
@@ -250,26 +250,24 @@ Low score:
 
 ### CSS — Concurrency & Scaling Specificity
 
-**Core question:** Has the author quantified expected load and specified how the system handles it?
+**Core question:** Has the author specified correctness-critical concurrency behavior, and quantified load where it is relevant to implementation risk?
 
 Look for:
-- Expected QPS (peak and sustained) with source/reasoning
-- Latency targets: p50, p95, p99
-- Connection pool sizing: DB connections per pod, total with scaling
 - Worker/goroutine counts and limits
 - Rate limiting: per-user, per-tenant, global, with specific numbers
+- Collision behavior: lock strategy, optimistic retry, or conflict resolution on shared writes
 - Backpressure strategy: what happens when the system can't keep up
-- Horizontal scaling plan: autoscale triggers, resource limits
 - Cache strategy: what's cached, TTL, invalidation, stampede protection
 - Hot path identification: which code paths are performance-critical
+- Expected QPS/latency targets only when the RFC is explicitly performance/capacity scoped
 
 High score:
-- "Target 500 QPS peak, p95 < 200ms, DB connection pool = 50 per pod × 4 pods, rate limit 100 req/s per user, autoscale on CPU > 70%."
-- Agent configures connection pools, rate limits, and caching from the spec.
+- "For `order_id` writes: optimistic lock with `version` column, retry once on conflict, return `409 CONFLICT` with recoverable message; queue consumer capped at 20 workers with backpressure to DLQ after retry budget."
+- Agent implements conflict handling, rate limits, and backpressure behavior from the spec.
 
 Low score:
 - "Should handle our traffic."
-- Agent uses framework defaults for everything.
+- Agent uses framework defaults and invents collision handling.
 
 ---
 
@@ -352,11 +350,13 @@ Low score:
 
 ---
 
-### RCS — Resource & Cost Specificity
+### RCS — Resource & Cost Notes (Advisory, not scored)
 
-**Core question:** What's the infrastructure impact, and is it within budget?
+**Core question:** Are there obvious infrastructure or cost risks the team should track outside this RFC?
 
-Look for:
+This section is advisory. It informs rollout planning but does not change category scores, score caps, or the final readiness verdict.
+
+Optional notes:
 - Compute requirements: pod count, CPU/memory per pod, autoscale range
 - DB load impact: query count delta, connection count delta, current headroom
 - Network egress: cross-AZ, cross-region, external API calls
@@ -365,13 +365,13 @@ Look for:
 - Cloud bill impact: even a rough estimate
 - Licensing costs for new dependencies
 
-High score:
+Strong advisory note:
 - "Adds ~200 req/s to orders DB (current 1500/s, headroom OK), new Redis instance `cache.t3.small` (~$25/mo), storage growth +5GB/month for audit logs."
-- Agent can document infra requirements in deployment manifests.
+- Team can route this to infra/finops planning without blocking implementation RFC readiness.
 
-Low score:
+Weak advisory note:
 - "No significant cost impact" without reasoning.
-- Silent resource growth that blows up the infrastructure budget.
+- Potential resource growth is unknown; flag for follow-up in infra planning.
 
 ---
 
@@ -460,7 +460,7 @@ Low score:
 | SAS — Security | **Highest** | Medium | **Highest** (when security) |
 | MRP — Migration & Rollout | Medium | **Highest** | **Highest** |
 | OBS — Observability | High | Medium | **Highest** |
-| RCS — Resource & Cost | Medium | Medium | **Highest** |
+| RCS — Resource & Cost (Advisory, not scored) | Advisory | Advisory | Advisory |
 | SBC — Service Boundary | High | High | Medium |
 | CPA — Pattern Alignment | High | **Highest** | Medium |
 | CDG — Compliance (conditional) | High (when triggered) | Medium | Medium |

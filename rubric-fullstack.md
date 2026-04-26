@@ -31,7 +31,7 @@ and a unified weight/cap system.
 
 ---
 
-## The 19 Scored Categories
+## The 18 Scored Categories
 
 ### Category Map
 
@@ -52,12 +52,16 @@ and a unified weight/cap system.
 | 13 | **SAS** | Security & Authorization Specificity | Backend | Backend criteria — but also check frontend input sanitization and auth token handling |
 | 14 | **ROL** | Rollout & Rollback Plan | Both | Single score — merge frontend ROL + backend MRP. See merge rules below. |
 | 15 | **OBS** | Observability Definition | Both | Single score — combine: frontend analytics/error tracking + backend metrics/logs/traces. See merge rules below. |
-| 16 | **RCS** | Resource & Cost Specificity | Backend | Backend criteria only — infra, DB load, storage growth |
-| 17 | **SBC** | Service Boundary & Coupling | Backend | Backend criteria only — which service, sync vs async, coupling |
-| 18 | **CPA** | Consistency & Pattern Alignment | Both | Single score — cite frontend patterns + backend patterns separately, then combine. See merge rules below. |
-| 19 | **CDG** | Compliance & Data Governance | Backend | Conditional — backend criteria, triggered by PII/regulated data |
+| 16 | **SBC** | Service Boundary & Coupling | Backend | Backend criteria only — which service, sync vs async, coupling |
+| 17 | **CPA** | Consistency & Pattern Alignment | Both | Single score — cite frontend patterns + backend patterns separately, then combine. See merge rules below. |
+| 18 | **CDG** | Compliance & Data Governance | Backend | Conditional — backend criteria, triggered by PII/regulated data |
 
-**Total: 19 categories** (CDG conditional, so 18 or 19 depending on triggers).
+**Total: 18 categories** (CDG conditional, so 17 or 18 depending on triggers).
+
+### Advisory section (not scored)
+
+- **RCS — Resource & Cost Notes (Backend-sourced):** keep as advisory commentary only.
+- Capacity and cost notes (pod/CPU/memory sizing, DB load projections, storage growth, cloud bill impact) can be included in recommendations, but must not affect category scores, score caps, or readiness verdict.
 
 ---
 
@@ -201,7 +205,6 @@ If the full path is not traceable from the RFC alone → flag for TDC and PRT.
 | SAS — Security (BE) | **Highest** | Medium | High |
 | ROL — Rollout (merged) | High | **Highest** | **Highest** |
 | OBS — Observability (merged) | High | High | **Highest** |
-| RCS — Resource & Cost (BE) | Medium | Medium | High |
 | SBC — Service Boundary (BE) | High | High | Medium |
 | CPA — Pattern Alignment (merged) | High | **Highest** | Medium |
 | CDG — Compliance (BE, conditional) | High (when triggered) | Medium | Medium |

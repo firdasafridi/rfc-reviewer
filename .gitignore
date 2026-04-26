@@ -18,3 +18,5 @@ rfc-review-report.md
 # Environment
 .env
 .env.local
+feedback/*
+rfc-starter/

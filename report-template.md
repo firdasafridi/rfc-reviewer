@@ -81,7 +81,7 @@ Short paragraph (3–5 sentences) answering:
 | OBS — Observability | `<score>` | `<cite section/quote or absence>` |
 | CPA — Pattern Alignment | `<score>` | `<cite section/quote or absence>` |
 
-### Backend Scorecard (13 core + 1 conditional)
+### Backend Scorecard (12 core + 1 conditional)
 
 *Use for backend-only RFCs.*
 
@@ -97,12 +97,11 @@ Short paragraph (3–5 sentences) answering:
 | SAS — Security & Authorization | `<score>` | `<cite section/quote or absence>` |
 | MRP — Migration & Rollout Plan | `<score>` | `<cite section/quote or absence>` |
 | OBS — Observability Definition | `<score>` | `<cite section/quote or absence>` |
-| RCS — Resource & Cost | `<score>` | `<cite section/quote or absence>` |
 | SBC — Service Boundary & Coupling | `<score>` | `<cite section/quote or absence>` |
 | CPA — Pattern Alignment | `<score>` | `<cite section/quote or absence>` |
 | CDG — Compliance & Data Governance | `<score or N/A>` | `<cite trigger or "no compliance trigger">` |
 
-### Full-Stack Scorecard (19 categories)
+### Full-Stack Scorecard (18 categories)
 
 *Use for full-stack RFCs. See `rubric-fullstack.md` for merge rules.*
 *Merged categories cite evidence from BOTH layers. Weakest layer drags the score.*
@@ -124,10 +123,15 @@ Short paragraph (3–5 sentences) answering:
 | 13 | SAS — Security & Authorization | BE | `<score>` | `<cite>` |
 | 14 | ROL — Rollout & Rollback | Merged | `<score>` | `FE: <flag/stages> · BE: <migration/rollback> · Cross: <deploy order/compat>` |
 | 15 | OBS — Observability | Merged | `<score>` | `FE: <analytics/errors> · BE: <metrics/logs/traces>` |
-| 16 | RCS — Resource & Cost | BE | `<score>` | `<cite>` |
-| 17 | SBC — Service Boundary & Coupling | BE | `<score>` | `<cite>` |
-| 18 | CPA — Pattern Alignment | Merged | `<score>` | `FE: <patterns> · BE: <patterns> · Cross: <naming/convention consistency>` |
-| 19 | CDG — Compliance & Data Governance | BE | `<score or N/A>` | `<cite trigger or "no compliance trigger">` |
+| 16 | SBC — Service Boundary & Coupling | BE | `<score>` | `<cite>` |
+| 17 | CPA — Pattern Alignment | Merged | `<score>` | `FE: <patterns> · BE: <patterns> · Cross: <naming/convention consistency>` |
+| 18 | CDG — Compliance & Data Governance | BE | `<score or N/A>` | `<cite trigger or "no compliance trigger">` |
+
+### Resource & Cost Advisory (backend/full-stack only)
+
+> This section is optional and non-blocking. Notes here must not change category scores, score caps, or the readiness verdict unless the RFC is explicitly capacity/cost scoped.
+
+- `<advisory note about compute/DB/storage/cost impact, or "No advisory note">`
 
 ---
 
@@ -522,7 +526,6 @@ User clicks [action]
 - [ ] Concurrency collision points listed with resolution mechanisms
 - [ ] Security: auth boundaries, input validation, injection surfaces, tenancy isolation
 - [ ] Migration plan: zero-downtime, backfill, backward compat window, rollback script
-- [ ] Resource and cost impact estimated
 - [ ] Service boundary and coupling documented
 - [ ] Compliance handled *(if PII/regulated data touched)*
 

@@ -17,8 +17,8 @@ You point it at an RFC, it reads the whole thing, and tells you if it's ready fo
 | Type | Sub-types | Scored categories |
 |------|-----------|-------------------|
 | Frontend | new-feature, enhancement, performance | 11 |
-| Backend | new-feature, enhancement, tech-improvement | 13-14 |
-| Full-stack | new-feature, enhancement, tech-improvement | 19 |
+| Backend | new-feature, enhancement, tech-improvement | 12-13 |
+| Full-stack | new-feature, enhancement, tech-improvement | 17-18 |
 
 Each type uses its own rubric. A frontend RFC gets evaluated differently from a backend one.
 
@@ -171,7 +171,7 @@ rfc-reviewer/
 
 The assessment runs in four phases:
 
-1. Read the full RFC, figure out the type (frontend/backend/full-stack), load the right rubric, start collecting evidence
+1. Read the full RFC, normalize evidence (exclude feedback/comment threads unless promoted into the RFC spec), figure out the type (frontend/backend/full-stack), load the right rubric, start collecting evidence
 2. Check PRD traceability, score each category, run the decision closure protocol on every technical choice
 3. Deep-dive into any category that scored below 7.0 with type-specific audits
 4. Write the report and deliver a verdict
@@ -179,6 +179,10 @@ The assessment runs in four phases:
 ## Design choices
 
 The scoring is judgment-based, not a checklist. Every score has to point at a specific section of the RFC (or the absence of one). Different RFC types get different rubrics because evaluating a frontend performance RFC the same way you'd evaluate a backend data migration makes no sense.
+
+The reviewer prioritizes implementation-contract clarity over infrastructure budgeting detail. Capacity and cost notes (pod/CPU/memory sizing, DB load projection, storage growth, cloud-cost impact) are treated as advisory by default unless the RFC is explicitly about capacity/cost planning.
+
+When the source document includes discussion areas like `Feedback`, `Comments`, or reviewer threads, those sections are treated as non-authoritative context and are excluded from scoring evidence unless the RFC explicitly promotes them into the formal specification sections.
 
 The tool is deliberately strict. If something is unclear enough that an implementer would have to guess, the score reflects that. Comfortable reports that hide gaps help nobody.
 
