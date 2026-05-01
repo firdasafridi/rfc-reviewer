@@ -25,45 +25,6 @@ Identify which sub-type best describes this RFC:
 - `enhancement`: modifying existing pages or components; regression, migration, and pattern alignment are critical
 - `performance`: optimizing existing frontend; trade-offs, observability, and rollback are critical
 
-## The 17 Reviewer Skills
-
-These skills are the lenses applied during review. Each produces evidence for scoring.
-
-| # | Skill | New Feature | Enhancement | Performance |
-|---|---|:---:|:---:|:---:|
-| 1 | Systems thinking & dependency mapping | M | **M** | M |
-| 2 | Requirements & scope interrogation | **M** | M | O |
-| 3 | User flow & state modeling | M | M | O |
-| 4 | Trade-off analysis | M | M | **M** |
-| 5 | Non-functional requirements literacy | M | M | M |
-| 6 | Security & privacy threat modeling | **M** | O | O |
-| 7 | Performance reasoning | M | M | **M** |
-| 8 | Data flow & state management critique | M | M | M |
-| 9 | API contract & backend coordination | M | O | O |
-| 10 | Failure mode imagination | **M** | **M** | **M** |
-| 11 | Migration & rollout reasoning | O | **M** | **M** |
-| 12 | Observability thinking | M | M | **M** |
-| 13 | Accessibility & inclusive design | **M** | O | O |
-| 14 | Abstraction judgment | **M** | M | O |
-| 15 | Cost of change / reversibility | M | **M** | M |
-| 16 | Communication & written critique | M | M | M |
-| 17 | Knowing what's missing | **M** | **M** | **M** |
-
-**M** = Mandatory for this sub-type
-**Bold M** = Particularly high-leverage for this sub-type
-**O** = Optional / context-dependent (see activation rules below)
-
-### When "Optional" becomes mandatory
-
-- **Security** (enhancement & performance): mandatory if RFC touches auth, user data, input handling, third-party integrations, caching of sensitive data, or session management.
-- **Requirements interrogation** (performance): mandatory if the perf target isn't quantified. "Make it faster" is not a requirement.
-- **User flow** (performance): mandatory if optimization changes timing of what users see (deferred hydration, skeleton screens, progressive loading).
-- **API contract** (enhancement / performance): mandatory if RFC adds, changes, removes, or batches any API call.
-- **Accessibility** (enhancement / performance): mandatory if RFC touches DOM structure, focus order, visible content, or animations. Lazy-loading and virtualization often break screen readers.
-- **Migration & rollout** (new feature): mandatory if the feature is large or risky.
-- **Abstraction judgment** (performance): mandatory if the proposal introduces caching layers, new state stores, or restructures data flow.
-
----
 
 ## Category Scores (11 categories)
 
@@ -198,6 +159,11 @@ Look for:
 - Race conditions: user clicks fast, navigates away mid-request, submits form twice
 - Stale data: what if cached data is outdated? What if WebSocket reconnects with stale state?
 - Graceful degradation: what works without JavaScript? Without certain browser features?
+- Memory leaks: event listeners and subscriptions not cleaned up on unmount
+- Hydration mismatches in SSR: server/client render divergence
+- Unhandled promise rejections
+- Missing debounce on expensive handlers (search, resize, scroll)
+- Safari iOS quirks (100vh, date inputs, scroll behavior) if mobile is in scope
 
 High score:
 - Agent implements error boundaries, retry logic, and fallback UI for every external interaction.
@@ -419,7 +385,7 @@ For performance and new-feature RFCs:
 
 For new-feature RFCs and enhancements touching DOM:
 - Is keyboard navigation flow described?
-- Are focus management rules specified (modal open/close, route change)?
+- Are focus management rules specified (modal open/close, route change)? Watch for keyboard traps in modals and missing focus return after dialog close.
 - Are ARIA labels specified for non-semantic interactive elements?
 - Is heading hierarchy correct?
 - Are color contrast ratios verified?
@@ -459,17 +425,3 @@ For every category, cite concrete evidence:
 Avoid generic claims such as "add more detail to UI states" unless you identify
 the specific component and the specific missing state.
 
-## Frequently Overlooked Issues
-
-Flag these if not addressed in the RFC:
-- Memory leaks from event listeners and subscriptions not cleaned up
-- Race conditions from rapid user clicks or navigation during fetch
-- Timezone handling (store UTC, display local)
-- Keyboard trap in modals
-- Missing focus return after dialog close
-- Hardcoded strings that should be i18n
-- Unhandled promise rejections
-- Hydration mismatches in SSR
-- Missing debounce on expensive handlers (search, resize, scroll)
-- Safari iOS quirks (100vh, date inputs, scroll behavior)
-- Old service worker caches after deploy

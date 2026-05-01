@@ -75,48 +75,32 @@ Before scoring, normalize the source content:
 
 ## Non-Negotiable SOP
 
-Four phases. Within each phase, steps can run in parallel.
+Three phases. Within each phase, steps can run in parallel.
 
 ### Phase 1 — Intake (do first, before any scoring)
 
 1. Read the full RFC content.
-2. Normalize evidence: exclude non-authoritative feedback/comment sections (`Feedback`, `Comments`, `Reviewer Notes`, review threads) unless their content is explicitly promoted into the authoritative RFC spec sections.
-3. Identify the RFC type (`frontend`, `backend`, `full-stack`) and sub-type:
-   - Frontend: `new-feature`, `enhancement`, or `performance`
-   - Backend: `new-feature`, `enhancement`, or `tech-improvement`
-   - Full-stack: identify both frontend and backend sub-types
+2. Normalize evidence: exclude non-authoritative feedback/comment sections (`Feedback`, `Comments`, `Reviewer Notes`, review threads) unless explicitly promoted into authoritative RFC sections.
+3. Identify RFC type (`frontend`, `backend`, `full-stack`) and sub-type (frontend: `new-feature`/`enhancement`/`performance`; backend: `new-feature`/`enhancement`/`tech-improvement`; full-stack: both).
 4. Read the rubric file(s) for that type and `report-template.md`.
 5. Build an evidence log — note section by section what is present, thin, or absent.
 
-### Phase 2 — Score (can run in parallel across categories)
+### Phase 2 — Score & Deep-Dive (can run in parallel across categories)
 
-5. **Run PRD → RFC traceability check:**
-   - Forward: every PRD requirement → which RFC section implements it?
-   - Reverse: every RFC decision → which PRD requirement drives it?
-   - Produce a traceability matrix. Missing mappings are gaps.
-   - **If no PRD exists** (tech-debt, performance, infra RFCs): PRT is scored on whether
-     the RFC states its own problem/motivation clearly enough that an agent knows *why*
-     it's building this. Score against self-contained justification instead of traceability.
-     The RFC must have: problem statement, success criteria, scope boundaries, and
-     explicit non-goals. If these are present and clear, PRT can score up to 8.0 without
-     a PRD. If absent, PRT scores as if the PRD link were missing.
-6. Score all rubric categories from `0.0` to `10.0` using `0.5` increments only.
-   For each category, cite at least one concrete piece of evidence.
-7. **Run the Decision Closure protocol** on every major technical decision (see below).
-
-### Phase 3 — Deep-Dive (only for categories that scored below 7.0, plus mandatory deep-dives)
-
-8. **Run type-specific deep-dives:**
+6. **Run PRD → RFC traceability check** (forward + reverse). If no PRD, score PRT on self-contained justification (problem statement, success criteria, scope, non-goals); max 8.0.
+7. Score all rubric categories `0.0`–`10.0` in `0.5` increments. Cite at least one concrete evidence per category.
+8. **Run the Decision Closure protocol** on every major technical decision (see below).
+9. **Run type-specific deep-dives:**
    - Frontend: UI State audit, Data flow trace, Performance budget check, Accessibility review, Pattern alignment check
    - Backend: Data integrity deep-dive, Concurrency collision map, API contract completeness check, Async job spec, Compliance trigger check
-   - Full-stack: ALL of the above PLUS cross-layer contract verification, cross-layer rollout compatibility matrix, end-to-end data flow trace (see `rubric-fullstack.md`)
-   - **Optimization:** deep-dive sections for categories scoring >= 7.0 can be abbreviated to one-line evidence in the scorecard instead of full tables.
-9. Apply score caps from the rubric before finalizing the overall score.
+   - Full-stack: ALL of the above PLUS cross-layer contract verification, rollout compatibility matrix, end-to-end data flow trace
+   - **Optimization:** for categories scoring `>= 7.0`, abbreviate deep-dive to one-line evidence in the scorecard instead of full tables.
+10. Apply score caps from the rubric before finalizing the overall score.
 
-### Phase 4 — Report
+### Phase 3 — Report
 
-10. Write the full report using `report-template.md`. Include the Task Manifest.
-11. Reply in chat with a compact summary:
+11. Write the full report using `report-template.md`. Include the Task Manifest.
+12. Reply in chat with a compact summary:
     - Overall score and rating band (Agentic-Ready / Strong / Needs Work / Incomplete / Insufficient)
     - **Agentic Readiness Verdict**: PROCEED / HOLD / BLOCKED — one word with a one-line reason
     - RFC type + sub-type
@@ -127,60 +111,34 @@ Four phases. Within each phase, steps can run in parallel.
     - PRD traceability: X of Y PRD items covered, X missing
     - Path to saved report
 
-## Decision Closure Assessment — Detailed Protocol
+## Decision Closure Assessment — Protocol
 
 This is the most critical differentiator of this skill. Applies to ALL RFC types.
-For EVERY technical decision in the RFC, run both steps: **resolution check** then **challenge protocol**.
+For EVERY major technical decision, run all three checks:
 
-### Step 1 — Resolution check (what must be present)
+### Check 1 — Resolution & Alternatives
+- Is the decision clearly stated with the chosen option named (not buried in prose)?
+- Were alternatives listed and rejected with specific reasons tied to constraints, measurements, or codebase reality — not dismissed in one sentence?
+- Does the decision reference specific files, modules, services, or tables? Could you find the code from the RFC alone?
 
-**1. Decision identity**
-- Is the decision clearly stated? Not buried in prose.
-- Is the chosen option explicitly named?
+### Check 2 — Specification & Failure Handling
+- Is the resulting interface fully specified? (API schema, component props, state shape, function signature — types, fields, nullability, error codes all pinned.)
+- What happens on the unhappy path? Backend: partial failure, retry, concurrent write. Frontend: network failure, empty data, stale cache, navigation mid-request.
+- Are there ordering dependencies? Acceptance criteria per implementation chunk?
 
-**2. Alternatives considered**
-- Were alternatives listed?
-- Is each alternative rejected with a specific reason tied to a constraint, measurement, or codebase reality?
-
-**3. Grounding in existing code**
-- Does the decision reference specific files, modules, services, components, or tables?
-- Could you find the code being discussed from the RFC alone?
-
-**4. Interface specification**
-- Is the resulting interface (API, schema, component props, state shape, function signature) fully specified?
-- Types, fields, nullability, error codes — all pinned down?
-
-**5. Failure handling**
-- What happens when this decision encounters the unhappy path?
-- For backend: partial failure, retry, timeout, concurrent write, stale read?
-- For frontend: network failure, empty data, slow response, stale cache, user navigates away mid-request?
-
-**6. Implementation constraints**
-- Are there ordering dependencies?
-- Are acceptance criteria stated per implementation chunk?
-
-### Step 2 — Challenge protocol (probe for holes)
-
-After the resolution check, actively challenge each major technical decision:
-
-- **Alternative challenge**: Was the rejected alternative genuinely evaluated, or dismissed in one sentence?
-- **Scale challenge**: Does this decision hold at 10x current load/users? What breaks first?
-- **Failure challenge**: What's the worst thing that happens if this specific choice is wrong?
-- **Reversibility challenge**: How hard is it to change this decision after code is written? After data is migrated? After users have adopted it?
-- **Consistency challenge**: Does this decision conflict with any other decision in the same RFC?
-- **Codebase challenge**: Does this decision match existing patterns, or introduce a new one? If new, is that justified?
-- **Agent challenge**: Could an AI agent implement this without asking the author a question? What would it guess?
+### Check 3 — Challenge Protocol
+- **Scale**: Does this hold at 10x load? What breaks first?
+- **Reversibility**: How hard to change after code is written? After data migration? After user adoption?
+- **Consistency**: Conflicts with other decisions in the RFC?
+- **Agent implementability**: Could an agent implement this without asking the author a question? What would it guess?
 
 ### Scoring decisions
 
 - **Resolved**: decision made, alternatives rejected with reason, interface specified, failure handled. Agent can implement.
-- **Partial**: decision made but interface incomplete, or failure handling missing. Agent would guess on details.
-- **Dangling**: "we could do X or Y" without resolution, or decision buried as ambiguity. Agent cannot proceed.
+- **Partial**: decision made but interface incomplete or failure handling missing. Agent would guess on details.
+- **Dangling**: "we could do X or Y" without resolution. Agent cannot proceed.
 
-For each Partial or Dangling decision, include:
-- A **gap list**: exactly what is missing
-- A **resolution suggestion**: a concrete proposed resolution based on the RFC's own context
-- **Open questions**: specific questions to resolve with the author before merge
+For each Partial or Dangling: list exactly what is missing, propose a concrete resolution using the RFC's own context, and write specific open questions for the author.
 
 ## Score discipline
 

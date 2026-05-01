@@ -32,63 +32,6 @@ Identify which sub-type best describes this RFC:
 - `enhancement`: modifying existing services, APIs, or data models; migration, API versioning, and data integrity are critical
 - `tech-improvement`: security hardening, performance optimization, or infrastructure change; trade-offs, observability, and rollback are critical
 
-## The 19 Reviewer Skills
-
-These skills are the lenses applied during review. Each produces evidence for scoring.
-
-| # | Skill | New Feature | Enhancement | Tech Improvement |
-|---|---|:---:|:---:|:---:|
-| 1 | Systems thinking & dependency mapping | M | **M** | **M** |
-| 2 | Requirements & scope interrogation | **M** | M | **M** |
-| 3 | Trade-off analysis | M | M | **M** |
-| 4 | Non-functional requirements literacy | **M** | M | **M** |
-| 5 | Failure mode imagination | **M** | **M** | **M** |
-| 6 | Observability thinking | **M** | M | **M** |
-| 7 | Cost of change / reversibility | M | **M** | **M** |
-| 8 | Abstraction judgment | **M** | M | O |
-| 9 | Communication & written critique | M | M | M |
-| 10 | Knowing what's missing | **M** | **M** | **M** |
-| 11 | Migration & rollout reasoning | O | **M** | **M** |
-| 12 | API contract & versioning discipline | **M** | **M** | O |
-| 13 | Data integrity & consistency | **M** | **M** | M |
-| 14 | Schema & data model critique | **M** | M | O |
-| 15 | Concurrency & scaling | **M** | M | **M** |
-| 16 | Security & authorization | **M** | M | **M** (when security) |
-| 17 | Compliance & data governance | O | O | O |
-| 18 | Resource & cost awareness | O | O | O |
-| 19 | Performance reasoning | M | M | **M** (when performance) |
-
-**M** = Mandatory for this sub-type
-**Bold M** = Particularly high-leverage for this sub-type
-**O** = Optional / context-dependent (see activation rules below)
-
-### When "Optional" becomes mandatory
-
-- **Compliance (#17):** mandatory the moment the RFC touches PII, payment data, health records, user-generated content retention, authentication logs, audit trails, or cross-border data flow. In Indonesia, UU PDP triggers apply to any personally identifiable data processing.
-- **Migration & rollout (#11) for new features:** optional only if greenfield — no existing data, no existing consumers, no shared infrastructure. The moment there's a shared database, existing clients, or existing deploy pipeline, it becomes mandatory.
-- **Abstraction judgment (#8) for tech improvement:** mandatory if the improvement introduces a new caching layer, queue, sharding strategy, or service boundary.
-- **API contract (#12) for tech improvement:** mandatory if it changes external timing, response shape, error semantics, or SLA — even subtly.
-- **Schema critique (#14) for tech improvement:** mandatory if the improvement adds indexes, changes column types, partitions tables, or touches hot paths in the data model.
-- **Security (#16) in non-security tech improvements:** mandatory if performance work touches authorization paths, caching of sensitive data, rate limiting, session handling, or tenant isolation. Performance optimizations often introduce security bugs (e.g., cache keys that leak across tenants).
-- **Performance reasoning (#19) in non-performance RFCs:** mandatory for any new feature at moderate-to-high scale, or any enhancement to a hot path.
-
-### The always-mandatory core
-
-Across all three backend sub-types, these never drop off:
-
-Systems thinking, trade-off analysis, NFR literacy, failure mode imagination, observability, cost of change, communication, knowing what's missing, data integrity & consistency.
-
-Nine skills. A reviewer who masters only these will catch the majority of serious backend issues.
-
-### Distinct high-risk areas per sub-type
-
-| Sub-Type | Watch Especially For |
-|---|---|
-| **New feature** | Schema design, API contract, data integrity, security, scaling (defining trust boundaries and data shapes from scratch) |
-| **Enhancement** | Migration & rollout, API versioning, data integrity, cost of change (existing consumers and data at stake) |
-| **Tech improvement** | Failure modes, observability, performance reasoning, rollback (easy to make production worse, and measurement defines success) |
-
----
 
 ## Category Scores (12 core + 1 conditional + 1 advisory)
 
@@ -641,49 +584,6 @@ Why 4.0: no middleware named, no scopes, no ownership check, no input validation
 
 Why 8.0: middleware named, scope specified, ownership check with enforcement point, per-field validation, injection mitigation named, rate limit quantified, audit logging specified.
 
----
-
-### Frontend calibration examples
-
-### CNT — Contract Specificity: 4.0 vs 8.0
-
-**Score 4.0 example:**
-> "The OrderCard component displays order information including status and amount."
-
-Why 4.0: no prop types, no state shape, no event payloads. Agent invents everything.
-
-**Score 8.0 example:**
-> ```typescript
-> interface OrderCardProps {
->   order: {
->     id: string;
->     status: 'pending' | 'confirmed' | 'cancelled' | 'refunded';
->     amountCents: number;
->     currency: 'IDR' | 'USD' | 'SGD';
->     createdAt: string; // ISO 8601
->     userName: string;
->   };
->   onCancel?: (orderId: string) => Promise<void>; // only shown when status === 'pending'
->   isLoading?: boolean; // default: false
-> }
-> ```
-> Analytics event on cancel: `order_cancelled { order_id, reason, source: 'order_card' }`
-
-Why 8.0: full TypeScript interface, conditional behavior specified, analytics event with exact name and properties.
-
-### FMC (Frontend) — Failure Modes: 4.0 vs 8.0
-
-**Score 4.0 example:**
-> "Show an error message if the API call fails."
-
-Why 4.0: which error message? Which API call? What about timeout vs 403 vs 500?
-
-**Score 8.0 example:**
-> "On `GET /orders` failure: 401 → redirect to login; 403 → show 'You don't have permission to view orders' inline banner; 429 → show 'Too many requests, please wait' toast with retry button (retry after `Retry-After` header); 500 → show 'Something went wrong' toast with retry button; timeout (10s) → show 'Connection timed out' toast with retry; offline → show cached data with 'You're offline — showing cached data' banner."
-
-Why 8.0: per-status-code behavior, specific error messages, retry mechanism, offline handling, timeout value.
-
----
 
 ## Required evidence style
 
